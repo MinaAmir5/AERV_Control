@@ -1,0 +1,590 @@
+################################## Behavior trees configurations ##################################
+bt_navigator:
+  ros__parameters:
+    navigators: ["navigate_to_pose", "navigate_through_poses"] # Default: ["navigate_to_pose", "navigate_through_poses"]
+    default_nav_to_pose_bt_xml: "$(find-pkg-share nav2_bt_navigator)/behavior_trees/navigate_to_pose_w_replanning_and_recovery.xml"
+    default_nav_through_poses_bt_xml: "$(find-pkg-share nav2_bt_navigator)/behavior_trees/navigate_through_poses_w_replanning_and_recovery.xml"
+    always_reload_bt_xml: false # Default: false
+    # plugin_lib_names: [""] # Default: [""]
+    bt_loop_duration: 50 # Default: 10
+    filter_duration: 0.3 # Default: 0.3
+    default_server_timeout: 40 # Default: 20
+    wait_for_service_timeout: 2000 # Default: 1000
+    action_server_result_timeout: 900.0 # Default: 900.0
+    service_introspection_mode: "disabled" # Default: "disabled". Options: “disabled”, “metadata”, “contents”.
+    transform_tolerance: 0.1 # Default: 0.1
+    global_frame: map # Default: map
+    robot_base_frame: base_link # Defalt: base_link
+    odom_topic: /odom # Default: odom
+    goal_blackboard_id: "goal" # Default: "goal"
+    path_blackboard_id: "path" # Default: "path"
+    goals_blackboard_id: "goals" # Default: "goals"
+    waypoint_statuses_blackboard_id: "waypoint_statuses" # Default: "waypoint_statuses"
+    error_code_name_prefixes:
+      - assisted_teleop
+      - backup
+      - compute_path
+      - dock_robot
+      - drive_on_heading
+      - follow_path
+      - nav_thru_poses
+      - nav_to_pose
+      - spin
+      - route
+      - undock_robot
+      - wait
+    error_code_names: ["compute_path_error_code", "follow_path_error_code"]
+    bond_heartbeat_period: 0.3 # Default: 0.1
+    navigate_to_pose:
+      plugin: "nav2_bt_navigator::NavigateToPoseNavigator"
+      enable_groot_monitoring: false # Default: false
+      groot_server_port: 1667
+    navigate_through_poses:
+      plugin: "nav2_bt_navigator::NavigateThroughPosesNavigator"
+      enable_groot_monitoring: false # Default: false
+      groot_server_port: 1669
+###################################################################################################
+controller_server:
+  ros__parameters:
+    controller_frequency: 20.0 # Default: 20.0
+    costmap_update_timeout: 0.3 # Default: 0.3
+    use_realtime_priority: false # Default: false
+    publish_zero_velocity: true # Default true
+    action_server_result_timeout: 15.0 # Default: 10.0
+    controller_plugins: ["FollowPathMPPI"]
+    progress_checker_plugins: ["progress_checker"]
+    goal_checker_plugins: ["general_goal_checker"] # "precise_goal_checker"
+    min_x_velocity_threshold: 0.001 # Default: 0.0001
+    min_y_velocity_threshold: 0.5 # Default: 0.0001
+    min_theta_velocity_threshold: 0.001 # Default: 0.0001
+    failure_tolerance: 0.3 # Default: 0.0
+    # speed_limit_topic: "speed_limit" # Default: "speed_limit"
+    odom_topic: "odom" # Default: “odom”
+    enable_stamped_cmd_vel: false # Default: false
+    bond_heartbeat_period: 0.3 # Default: 0.1
+
+    progress_checker:
+      plugin: "nav2_controller::SimpleProgressChecker"
+      required_movement_radius: 0.3 # Default: 0.5
+      movement_time_allowance: 10.0 # Default: 10.0
+
+    general_goal_checker:
+      plugin: "nav2_controller::SimpleGoalChecker"
+      xy_goal_tolerance: 0.5 # Default: 0.25
+      yaw_goal_tolerance: 0.4 # Default: 0.25
+      stateful: True
+
+    FollowPathMPPI:
+      plugin: "nav2_mppi_controller::MPPIController"
+      motion_model: "Ackermann" # Default: “DiffDrive”
+      critics: [
+        "ConstraintCritic", "CostCritic", "GoalCritic", "ObstaclesCritic",
+        "GoalAngleCritic", "PathAlignCritic", "PathFollowCritic",
+        "PathAngleCritic", "PreferForwardCritic"]
+      iteration_count: 1 # Default: 1
+      batch_size: 1000 # Default: 1000
+      time_steps: 56 # Default: 56
+      model_dt: 0.05 # Default: 0.05
+      vx_std: 0.2 # Default: 0.2
+      vy_std: 0.2 # Default: 0.2
+      wz_std: 0.4 # Default: 0.2
+      vx_max: 1.5 # Default: 0.5
+      vy_max: 0.5 # Default: 0.5
+      vx_min: 0.5 # Default: -0.35
+      wz_max: 1.9 # Default: 1.9
+      ax_max: 3.0 # Default: 3.0
+      ay_min: -3.0 # Default: -3.0
+      ay_max: 3.0 # Default: 3.0
+      ax_min: -3.0 # Default: -3.0
+      az_max: 3.5 # Default: 3.5
+      temperature: 0.3 # Default: 0.3
+      gamma: 0.015 # Default: 0.015
+      visualize: false # Default: false
+      publish_optimal_trajectory: false # Default: false
+      retry_attempt_limit: 1 # Default: 1
+      reset_period: 3.0 # Default: 1.0
+      regenerate_noises: false # Default: false
+      TrajectoryVisualizer:
+        trajectory_step: 5 # Default: 5
+        time_step: 3 # Default: 3
+      transform_tolerance: 0.1 # Default: 0.5
+      prune_distance: 1.5 # Default: 1.5
+      max_robot_pose_search_dist: 20.0 # Default: Costmap size/2
+      enforce_path_inversion: true # Default: false
+      inversion_xy_tolerance: 0.2 # Default: 0.2
+      inversion_yaw_tolerance: 0.4 # Default: 0.4
+      AckermannConstraints:
+        min_turning_r: 1.3 # Default: 0.2
+
+      ConstraintCritic:
+        enabled: true
+        cost_weight: 4.0 # Default: 4.0
+        cost_power: 1 # Default: 1
+      GoalAngleCritic:
+        enabled: true
+        cost_weight: 3.0 # Default: 3.0
+        cost_power: 1 # Default: 1
+        threshold_to_consider: 0.5 # Default: 0.5
+      GoalCritic:
+        enabled: true
+        cost_weight: 5.0 # Default: 5.0
+        cost_power: 1 # Default: 1
+        threshold_to_consider: 1.4 # Default: 1.4
+
+      ObstaclesCritic:
+        enabled: true
+        critical_weight: 20.0 # Default: 20.0
+        repulsion_weight: 1.5 # Default: 1.5
+        cost_power: 1 # Default: 1
+        consider_footprint: true # Default: false
+        collision_cost: 100000.0 # Default: 100000.0
+        collision_margin_distance: 0.10 # Default: 0.10
+        near_goal_distance: 0.50 # Default: 0.50
+        cost_scaling_factor: 10.0 # Default: 10.0
+        inflation_radius: 0.55 # Default: 0.55
+        inflation_layer_name: "" # Default: ""
+
+      CostCritic:
+        enabled: true
+        cost_weight: 3.81 # Default: 3.81
+        cost_power: 1 # Default: 1
+        consider_footprint: true # Default: false
+        collision_cost: 1000000.0 # Default: 1000000.0
+        near_collision_cost: 253 # Default: 253
+        critical_cost: 300.0 # Default: 300.0
+        near_goal_distance: 0.5 # Default: 0.5
+        inflation_layer_name: "" # Default: ""
+        trajectory_point_step: 2 # Default: 2
+      PathAlignCritic:
+        enabled: true
+        cost_weight: 14.0 # Default: 10.0
+        cost_power: 1 # Default: 1
+        threshold_to_consider: 0.5 # Default: 0.5
+        offset_from_furthest: 20 # Default: 20
+        max_path_occupancy_ratio: 0.05 # Default: 0.07
+        use_path_orientations: true # Default: false
+        trajectory_point_step: 4 # Default: 4
+      PathAngleCritic:
+        enabled: true
+        cost_weight: 2.0 # Default: 2.2
+        cost_power: 1 # Default: 1
+        threshold_to_consider: 0.5 # Default: 0.5
+        offset_from_furthest: 4 # Default: 20
+        max_angle_to_furthest: 1.0 # Default: 0.785398
+        mode: 0 # Default: 0
+      PathFollowCritic:
+        enabled: true
+        cost_weight: 5.0 # Default: 5.0
+        cost_power: 1 # Default: 1
+        threshold_to_consider: 1.4 # Default: 1.4
+        offset_from_furthest: 5 # Default: 6
+      PreferForwardCritic:
+        enabled: true
+        cost_weight: 5.0 # Default: 5.0
+        cost_power: 1 # Default: 1
+        threshold_to_consider: 0.5 # Default: 0.5
+      optimization:
+        cost_power: 2.0
+        trajectory_point_cost_weight: 0.5
+        trajectory_final_cost_weight: 1.5
+        reverse_penalty: 1.0  # Try increasing this to penalize reversing
+        direction_switching_penalty: 10.0  # Prevent rapid flip-flopping
+#################################### Costmap 2D configurations ####################################
+local_costmap:
+  local_costmap:
+    ros__parameters:
+      always_send_full_costmap: false # Default: false
+      service_introspection_mode: "disabled" # Default: "disabled"
+      footprint_padding: 0.01 # Default: 0.01
+      # footprint: "[]" # Default: "[]"
+      global_frame: odom # Default: "map"
+      height: 3 # Default: 5
+      width: 3 # Default: 5
+      lethal_cost_threshold: 100 # Default: 100
+      map_vis_z: 1.0 # Default: 0.0
+      observation_sources: scan # Default: ""
+      origin_x: 0.0 # Default: 0.0
+      origin_y: 0.0 # Default: 0.0
+      publish_frequency: 5.0 # Default: 1.0
+      resolution: 0.05 # Default: 0.1
+      robot_base_frame: base_link # Default: "base_link"
+      robot_radius: 0.55 # Default: 0.1
+      rolling_window: false # Default: false
+      track_unknown_space: true # Default: false
+      transform_tolerance: 0.3 # Default: 0.3
+      initial_transform_timeout: 60.0 # Default: 60.0
+      trinary_costmap: true # Default: true
+      unknown_cost_value: 255 # Default: 255
+      update_frequency: 5.0 # Default: 5.0
+      use_maximum: false # Default: false
+
+      plugins: ["static_layer", "obstacle_layer", "range_sensor_layer", "denoise_layer", "inflation_layer"]
+      # filters: ["keepout_filter"]
+      static_layer:
+        plugin: "nav2_costmap_2d::StaticLayer"
+        enabled: true # Default: true
+        footprint_clearing_enabled: false # Default: false
+        restore_cleared_footprint: true # Default: true
+        subscribe_to_updates: false # Default: false
+        map_subscribe_transient_local: True # Default: true
+        transform_tolerance: 0.0 # Default: 0.0
+        # map_topic: map # Default: "map"
+      obstacle_layer:
+        plugin: "nav2_costmap_2d::ObstacleLayer"
+        enabled: True # Default: true
+        footprint_clearing_enabled: true # Default: true
+        max_obstacle_height: 2.0 # Default: 2.0
+        combination_method: 1 # Default: 1
+        observation_sources: scan # Default: {""}
+        scan:
+          topic: /scan # Default: ""
+          sensor_frame: laser_frame # Default: ""
+          observation_persistence: 0.0 # Default: ""
+          expected_update_rate: 0.0 # Default: 0.0
+          data_type: "LaserScan" # Default: "LaserScan"
+          max_obstacle_height: 2.0 # Default: 2.0
+          inf_is_valid: true # Default: false
+          marking: True # Default: true
+          clearing: true # Default: false
+          obstacle_max_range: 11.5 # Default: 2.5
+          obstacle_min_range: 0.0 # Default: 0.0
+          raytrace_max_range: 12.0 # Default: 3.0
+          raytrace_min_range: 0.0 # Default: 0.0
+      range_sensor_layer:
+        plugin: "nav2_costmap_2d::RangeSensorLayer"
+        enabled: True # Default: true
+        topics: ["/ultrasonic_range", "/range2", "/range3", "/range4", "/range5", "/range6"] # Default: [""]
+        phi: 1.2 # Default: 1.2
+        inflate_cone: 1.0 # Default: 1.0
+        no_readings_timeout: 0.0 # Default: 0.0
+        clear_threshold: 0.2 # Default: 0.2
+        mark_threshold: 0.8 # Default: 0.8
+        clear_on_max_reading: true # Default: false
+        input_sensor_type: ALL # Default: ALL
+      denoise_layer:
+        plugin: "nav2_costmap_2d::DenoiseLayer"
+        enabled: True # Default: true
+        minimal_group_size: 2 # Default: 2
+        group_connectivity_type: 8 # Default: 8
+      inflation_layer:
+        plugin: "nav2_costmap_2d::InflationLayer"
+        enabled: true # Default: true
+        inflation_radius: 0.55 # Default: 0.55
+        cost_scaling_factor: 10.0 # Defalut: 10.0
+        inflate_unknown: false # Default: false
+        inflate_around_unknown: false # Default: false
+
+global_costmap:
+  global_costmap:
+    ros__parameters:
+      always_send_full_costmap: true # Default: false
+      service_introspection_mode: "disabled" # Default: "disabled"
+      footprint_padding: 0.01 # Default: 0.01
+      # footprint: "[]" # Default: "[]"
+      global_frame: map # Default: "map"
+      height: 3 # Default: 5
+      width: 3 # Default: 5
+      lethal_cost_threshold: 100 # Default: 100
+      map_vis_z: 0.0 # Default: 0.0
+      observation_sources: scan # Default: ""
+      origin_x: 0.0 # Default: 0.0
+      origin_y: 0.0 # Default: 0.0
+      publish_frequency: 5.0 # Default: 1.0
+      resolution: 0.05 # Default: 0.1
+      robot_base_frame: base_link # Default: "base_link"
+      robot_radius: 0.55 # Default: 0.1
+      rolling_window: false # Default: false
+      track_unknown_space: true # Default: false
+      transform_tolerance: 0.3 # Default: 0.3
+      initial_transform_timeout: 60.0 # Default: 60.0
+      trinary_costmap: true # Default: true
+      unknown_cost_value: 255 # Default: 255
+      update_frequency: 5.0 # Default: 5.0
+      use_maximum: false # Default: false
+
+      plugins: ["static_layer", "obstacle_layer", "range_sensor_layer", "denoise_layer", "inflation_layer"]
+      # filters: ["keepout_filter"]
+      static_layer:
+        plugin: "nav2_costmap_2d::StaticLayer"
+        enabled: true # Default: true
+        footprint_clearing_enabled: false # Default: false
+        restore_cleared_footprint: true # Default: true
+        subscribe_to_updates: false # Default: false
+        map_subscribe_transient_local: True # Default: true
+        transform_tolerance: 0.0 # Default: 0.0
+        # map_topic: map # Default: "map"
+      obstacle_layer:
+        plugin: "nav2_costmap_2d::ObstacleLayer"
+        enabled: True # Default: true
+        footprint_clearing_enabled: true # Default: true
+        max_obstacle_height: 2.0 # Default: 2.0
+        combination_method: 1 # Default: 1
+        observation_sources: scan # Default: {""}
+        scan:
+          topic: /scan # Default: ""
+          sensor_frame: laser_frame # Default: ""
+          observation_persistence: 0.0 # Default: ""
+          expected_update_rate: 0.0 # Default: 0.0
+          data_type: "LaserScan" # Default: "LaserScan"
+          max_obstacle_height: 2.0 # Default: 2.0
+          inf_is_valid: true # Default: false
+          marking: True # Default: true
+          clearing: true # Default: false
+          obstacle_max_range: 11.5 # Default: 2.5
+          obstacle_min_range: 0.0 # Default: 0.0
+          raytrace_max_range: 12.0 # Default: 3.0
+          raytrace_min_range: 0.0 # Default: 0.0
+      range_sensor_layer:
+        plugin: "nav2_costmap_2d::RangeSensorLayer"
+        enabled: True # Default: true
+        topics: ["/range1", "/range2", "/range3", "/range4", "/range5", "/range6"] # Default: [""]
+        phi: 1.2 # Default: 1.2
+        inflate_cone: 1.0 # Default: 1.0
+        no_readings_timeout: 0.0 # Default: 0.0
+        clear_threshold: 0.2 # Default: 0.2
+        mark_threshold: 0.8 # Default: 0.8
+        clear_on_max_reading: true # Default: false
+        input_sensor_type: ALL # Default: ALL
+      denoise_layer:
+        plugin: "nav2_costmap_2d::DenoiseLayer"
+        enabled: True # Default: true
+        minimal_group_size: 2 # Default: 2
+        group_connectivity_type: 8 # Default: 8
+      inflation_layer:
+        plugin: "nav2_costmap_2d::InflationLayer"
+        enabled: true # Default: true
+        inflation_radius: 0.55 # Default: 0.55
+        cost_scaling_factor: 10.0 # Defalut: 10.0
+        inflate_unknown: false # Default: false
+        inflate_around_unknown: false # Default: false
+###################################################################################################
+
+################################## Planner Server configurations ##################################
+planner_server:
+  ros__parameters:
+    planner_plugins: ["GridBased"] # Default: ['GridBased']
+    expected_planner_frequency: 20.0 # Default: 20.0
+    action_server_result_timeout: 10.0 # Default: 10.0
+    bond_heartbeat_period: 0.3 # Default: 0.1
+    costmap_update_timeout: 1.0 # Default: 1.0
+    service_introspection_mode: 'disabled' # Default: 'disabled'
+    GridBased:
+      plugin: "nav2_smac_planner::SmacPlannerHybrid"
+      downsample_costmap: false # Default: false
+      downsampling_factor: 1 # Default: 1
+      allow_unknown: true # Default: true
+      tolerance: 0.5 # Default: 0.25
+      max_iterations: 1000000 # Default: 1000000
+      max_on_approach_iterations: 1000 # Default: 1000
+      terminal_checking_interval: 5000 # Default: 5000
+      max_planning_time: 5.0 # Default: 5.0
+      analytic_expansion_ratio: 3.5 # Default: 3.5
+      analytic_expansion_max_length: 5.2 # Default: 3.0
+      analytic_expansion_max_cost: 200.0 # Default: 200.0
+      analytic_expansion_max_cost_override: false # Default: false
+      motion_model_for_search: "REEDS_SHEPP" # Default: “DUBIN”
+      angle_quantization_bins: 72 # Default: 72
+      minimum_turning_radius: 1.3 # Default: 0.4
+      reverse_penalty: 2.0 # Default: 2.0
+      change_penalty: 0.0 # Default: 0.0
+      non_straight_penalty: 1.20 # Default: 1.20
+      cost_penalty: 2.0 # Default: 2.0
+      retrospective_penalty: 0.015 # Default: 0.015
+      lookup_table_size: 20.0 # Default: 20.0
+      debug_visualizations: false # Default: false
+      cache_obstacle_heuristic: false # Default: false
+      allow_primitive_interpolation: false # Default: false
+      downsample_obstacle_heuristic: true # Default: true
+      use_quadratic_cost_penalty: false # Default: false
+      smooth_path: true # Default: true
+      smoother:
+        max_iterations: 1000 # Default: 1000
+        w_smooth: 0.3 # Default: 0.3
+        w_data: 0.2 # Default: 0.2
+        tolerance: 1e-10 # Default: 1e-10
+        do_refinement: true # Default: true
+        refinement_num: 2 # Default: 2
+      goal_heading_mode: "DEFAULT" # Default: “DEFAULT”
+      coarse_search_resolution: 4 # Default: 4
+###################################################################################################
+
+################################## Smoother server configurations #################################
+smoother_server:
+  ros__parameters:
+    costmap_topic: global_costmap/costmap_raw # Default: “global_costmap/costmap_raw”
+    footprint_topic: global_costmap/published_footprint # Default: “global_costmap/published_footprint”
+    transform_timeout: 0.1 # Default: 0.1
+    action_server_result_timeout: 15.0 # Default: 15.0
+    robot_base_frame: base_link # Default: “base_link”
+    smoother_plugins: ["curvature_smoother"]
+    bond_heartbeat_period: 0.3 # Default: 0.1
+    curvature_smoother:
+      plugin: "nav2_constrained_smoother/ConstrainedSmoother"
+      reversing_enabled: true # Default: true
+      path_downsampling_factor: 1 # Default: 1
+      path_upsampling_factor: 1 # Default: 1
+      keep_start_orientation: true # Default: true
+      keep_goal_orientation: true # Default: true
+      minimum_turning_radius: 1.3 # Default: 0.4
+      w_curve: 30.0 # Default: 30.0
+      w_dist: 0.0 # Default: 0.0
+      w_smooth: 2000000.0 # Default: 2000000.0
+      w_cost: 0.015 # Default: 0.015
+      w_cost_cusp_multiplier: 3.0 # Default: 3.0
+      cusp_zone_length: 2.5 # Default: 2.5
+      # cost_check_points: [] # Default: []
+      optimizer:
+        max_iterations: 100 # Default: 100
+        debug_optimizer: false # Default: false
+        linear_solver_type: "SPARSE_NORMAL_CHOLESKY" # Default: “SPARSE_NORMAL_CHOLESKY”
+        gradient_tol: 1e-10 # Default: 1e-10
+        fn_tol: 1e-7 # Default: 1e-7
+        param_tol: 1e-15 # Default: 1e-15
+###################################################################################################
+
+################################## Behavior server configurations #################################
+behavior_server:
+  ros__parameters:
+    local_costmap_topic: local_costmap/costmap_raw # Default: “local_costmap/costmap_raw”
+    global_costmap_topic: global_costmap/costmap_raw # Default: “global_costmap/costmap_raw”
+    local_footprint_topic: local_costmap/published_footprint # Default: “local_costmap/published_footprint”
+    global_footprint_topic: global_costmap/published_footprint # Default: “global_costmap/published_footprint”
+    cycle_frequency: 10.0 # Default: 10.0
+    action_server_result_timeout: 10.0 # Default: 10.0
+    transform_tolerance: 0.1 # Default: 0.1
+    local_frame: odom # Default: "odom"
+    global_frame: map # Default: "map"
+    robot_base_frame: base_link # Default: "base_link"
+    behavior_plugins: ["spin", "backup", "drive_on_heading", "assisted_teleop", "wait"]
+    spin:
+      plugin: "nav2_behaviors::Spin"
+      simulate_ahead_time: 2.0 # Default: 2.0
+      max_rotational_vel: 0.5 # Default: 1.0
+      min_rotational_vel: 0.4 # Default: 0.4
+      rotational_acc_lim: 3.2 # Default: 3.2
+      enable_stamped_cmd_vel: false # Default: true
+    backup:
+      plugin: "nav2_behaviors::BackUp"
+      simulate_ahead_time: 2.0 # Default: 2.0
+      enable_stamped_cmd_vel: false # Default: false
+      acceleration_limit: 0.5 # Default: 2.5
+      deceleration_limit: -0.5 # Default: -2.5
+      minimum_speed: 0.1 # Default: 0.1
+    drive_on_heading: 
+      plugin: "nav2_behaviors::DriveOnHeading"
+      simulate_ahead_time: 2.0 # Default: 2.0
+      enable_stamped_cmd_vel: false # Default: true
+      bond_heartbeat_period: 0.3 # Default: 0.1
+      acceleration_limit: 0.5 # Default: 2.5
+      deceleration_limit: -0.5 # Default: -2.5
+      minimum_speed: 0.1 # Default: 0.1
+    wait:
+      plugin: "nav2_behaviors::Wait"
+    assisted_teleop:
+      plugin: "nav2_behaviors::AssistedTeleop"
+      projection_time: 1.0 # Default: 1.0
+      simulation_time_step: 0.1 # Default: 0.1
+      cmd_vel_teleop: "cmd_vel_tele" # Default: "cmd_vel_teleop"
+      enable_stamped_cmd_vel: false # Default: true
+###################################################################################################
+
+################################# Velocity smoother configurations ################################
+velocity_smoother:
+  ros__parameters:
+    use_realtime_priority: false # Default: false
+    smoothing_frequency: 20.0 # Default: 20
+    scale_velocities: False # Default: false
+    feedback: "OPEN_LOOP" # Default: "OPEN_LOOP"
+    max_velocity: [0.5, 0.0, 2.0] # Default: [0.5, 0.0, 2.5]
+    min_velocity: [-0.5, 0.0, -2.0] # Default: [-0.5, 0.0, -2.5]
+    deadband_velocity: [0.0, 0.0, 0.0] # Default: [0.0, 0.0, 0.0]
+    velocity_timeout: 1.0 # Default: 1.0
+    max_accel: [0.5, 0.0, 3.2] # Default: [2.5, 0.0, 3.2]
+    max_decel: [-0.5, 0.0, -3.2] # Default: [-2.5, 0.0, -3.2]
+    odom_topic: "odometry/filtered" # Default: "odom"
+    odom_duration: 0.1 # Default: 0.1
+    enable_stamped_cmd_vel: false # Default: false
+    bond_heartbeat_period: 0.3 # Default: 0.1
+###################################################################################################
+
+################################# collision monitor configurations ################################
+collision_monitor:
+  ros__parameters:
+    base_frame_id: "base_footprint" # Default: “base_footprint”
+    odom_frame_id: "odom" # Default: "odom"
+    cmd_vel_in_topic: "cmd_vel_final" # Default: “cmd_vel_smoothed”
+    cmd_vel_out_topic: "cmd_vel" # Default: “cmd_vel”
+    state_topic: "collision_monitor_state" # Default: ""
+    transform_tolerance: 0.2 # Default: 0.1
+    source_timeout: 1.0 # Default: 2.0
+    base_shift_correction: True # Default: true
+    stop_pub_timeout: 2.0 # Default: 1.0
+    use_realtime_priority: false # Default: false
+    enable_stamped_cmd_vel: false # Default: false
+
+    polygons: ["FootprintApproach", "PolygonSlow", "VelocityPolygonStop"]
+    FootprintApproach:
+      type: "polygon"
+      action_type: "approach"
+      footprint_topic: "/local_costmap/published_footprint" # Default: “local_costmap/published_footprint”
+      min_points: 6 # Default: 4
+      time_before_collision: 10.2 # Default: 2.0
+      simulation_time_step: 0.1 # Default: 0.1
+      visualize: true # Default: false
+      polygon_pub_topic: "FootprintApproach"
+      enabled: True # Default: true
+
+    PolygonSlow:
+      type: "polygon"
+      action_type: "slowdown"
+      points: "[[1.5, 1.1], [1.5, -1.1], [-1.5, -1.1], [-1.5, 1.1]]"
+      min_points: 6  # Default: 4
+      slowdown_ratio: 0.5 # Default: 0.5
+      visualize: True # Default: false
+      polygon_pub_topic: "polygon_slowdown"
+      enabled: True # Default: true
+
+    VelocityPolygonStop:
+      type: "velocity_polygon"
+      action_type: "stop"
+      holonomic: false # Default: false
+      min_points: 6 # Default: 4
+      visualize: True # Default: false
+      polygon_pub_topic: "velocity_polygon_stop"
+      enabled: True # Default: true
+      velocity_polygons: ["low_speed", "normal_speed", "high_speed"]
+      low_speed:
+        points: "[[0.7, 0.55], [0.7, -0.55], [-0.7, -0.55], [-0.7, 0.55]]"
+        linear_min: -0.4
+        linear_max: 0.4
+        theta_min: -2.0
+        theta_max: 2.0
+      normal_speed:
+        points: "[[0.9, 0.75], [0.9, -0.75], [-0.9, -0.75], [-0.9, 0.75]]"
+        linear_min: -0.8
+        linear_max: 0.8
+        theta_min: -2.0
+        theta_max: 2.0
+      high_speed:
+        points: "[[1.3, 0.9], [1.3, -0.9], [-1.3, -0.9], [-1.3, 0.9]]"
+        linear_min: -1.2
+        linear_max: 1.2
+        theta_min: -2.0
+        theta_max: 2.0
+      # stopped:
+      #   points: "[[1.0, 1.0], [1.0, -1.0], [-1.0, -1.0], [-1.0, 1.0]]"
+      #   linear_min: -1.0
+      #   linear_max: 1.0
+      #   theta_min: -1.0
+      #   theta_max: 1.0
+
+    observation_sources: ["scan"]
+    scan:
+      type: "scan" # Default: "scan"
+      topic: "scan" # Default: "scan"
+      min_height: 0.15 # Default: 0.05
+      max_height: 2.0 # Default: 0.5
+      sampling_distance: 0.1 # Default: 0.1
+      enabled: True # Default: true
+      bond_heartbeat_period: 0.3 # Default: 0.1
+

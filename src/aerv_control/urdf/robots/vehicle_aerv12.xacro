@@ -1,0 +1,86 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro" name="vehicle_aerv12" xmlns:gz="http://gazebosim.org/schema">
+
+    <xacro:arg name="robot_name" default="aerv_vehicle"/>
+    <xacro:arg name="prefix" default=""/>
+    <xacro:arg name="use_gazebo" default="false"/>
+
+    <!--################################ include vehicle files #################################-->
+    <xacro:property name="mesh_path" value="file://$(find aerv_control)/meshes"/>
+    <xacro:include filename="$(find aerv_control)/urdf/common.xacro"/>
+    <xacro:include filename="$(find aerv_control)/urdf/mech/vehicle_base.xacro"/>
+    <xacro:include filename="$(find aerv_control)/urdf/mech/vehicle_cover.xacro"/>
+    <xacro:include filename="$(find aerv_control)/urdf/mech/steering_pins.xacro"/>
+    <xacro:include filename="$(find aerv_control)/urdf/mech/front_wheels.xacro"/>
+    <xacro:include filename="$(find aerv_control)/urdf/mech/rear_wheels.xacro"/>
+    <xacro:include filename="$(find aerv_control)/urdf/sensors/camera.xacro"/>
+    <xacro:include filename="$(find aerv_control)/urdf/sensors/lidar.xacro"/>
+    <xacro:include filename="$(find aerv_control)/urdf/sensors/imu.xacro"/>
+    <xacro:include filename="$(find aerv_control)/urdf/sensors/ultrasonic.xacro"/>
+    <xacro:include filename="$(find aerv_control)/urdf/sensors/gps.xacro"/>
+    <xacro:include filename="$(find aerv_control)/urdf/control/mec_mobile.gazebo"/>
+    <!--########################################################################################-->
+
+    <!--###################################-Calling macros-####################################-->
+    <xacro:vehicle_base/>
+
+    <xacro:vehicle_cover/>
+
+    <xacro:steering_pin
+      side="l"
+      r_reflect="1"/>
+
+    <xacro:steering_pin
+      side="r"
+      r_reflect="-1"/>
+
+    <xacro:front_wheel
+      side="l"
+      r_reflect="1"
+      y_reflect="1"/>
+
+    <xacro:front_wheel
+      side="r"
+      r_reflect="-1"
+      y_reflect="-1.082253613"/>
+
+    <xacro:rear_wheel
+      side="l"
+      r_reflect="1"/>
+
+    <xacro:rear_wheel
+      side="r"
+      r_reflect="-1"/>
+
+    <xacro:camera
+      camera_name="camera"
+      xyz_offset="0.55 0 0.05"
+      rpy_offset="0 0 0"/>
+
+    <xacro:lidar_sensor
+      parent="base_link"
+      frame_id="laser_frame"
+      xyz_offset="0 0 0.38"
+      rpy_offset="0 3.1415926536 0"
+      mesh_xyz_offset="0 0 0"
+      mesh_rpy_offset="${-PI/2} 0 0"
+      topic_name="scan"/>
+
+    <xacro:imu_sensor
+      parent="base_link"
+      frame_id="imu"
+      xyz_offset="0 0 0.006"
+      rpy_offset="0 0 0"
+      update_rate="15.0"
+      topic_name="imu/data"/>
+
+    <xacro:gps_sensor
+      parent="base_link"
+      frame_id="gps"
+      xyz_offset="0 0 0.006"
+      rpy_offset="0 0 0"
+      update_rate="15.0"
+      topic_name="fix"/>
+  <!--########################################################################################-->
+
+</robot>

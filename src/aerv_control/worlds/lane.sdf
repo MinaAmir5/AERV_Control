@@ -1,0 +1,22 @@
+<?xml version="1.0" ?>
+<sdf version="1.6">
+
+    <model name="lane">
+      <static>true</static>
+      <pose>5.5 30 0.03 0 0 0</pose>
+      <link name="link">
+        <visual name="lane_line_side">
+          <geometry>
+            <box>
+              <size>0.05 5 0.01</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>1 1 1 1</ambient>
+            <diffuse>1 1 1 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+</sdf>

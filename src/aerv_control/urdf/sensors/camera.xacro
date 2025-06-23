@@ -1,0 +1,104 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!--####################################### Macros ########################################-->
+  <xacro:macro name="camera" params="
+    camera_name:='cam_1'
+    parent:='base_link'
+    mesh_file:='file://$(find aerv_control)/meshes/intel_realsense/visual/d435.stl'
+    xyz_offset:='0.105 0 0.05'
+    rpy_offset:='0 -0.50 0'
+    mesh_xyz_offset:='0 0 0'
+    mesh_rpy_offset:='${PI/2} 0.0 ${PI/2}'
+    collision_xyz_offset:='0 0 0'
+    collision_rpy_offset:='0 0 0'
+    inertial_xyz_offset:='0 0 0'
+    inertial_rpy_offset:='0 0 0'
+    cam_width:=0.090
+    cam_height:=0.025
+    cam_depth:=0.02505
+    mass:=0.072
+    ixx:=0.003881243
+    ixy:=0.0
+    ixz:=0.0
+    iyy:=0.000498940
+    iyz:=0.0
+    izz:=0.003879257
+    material_name:='aluminum'
+    material_color:='0.8 0.8 0.8 1'
+    enable_collision:=true">
+
+    <link name="${camera_name}_link_optical" />
+
+    <link name="${camera_name}_link">
+      <pose>0 0 0 0 0 0</pose>
+      <visual>
+        <origin xyz="${mesh_xyz_offset}" rpy="${mesh_rpy_offset}"/>
+        <geometry>
+          <mesh filename="${mesh_file}" />
+        </geometry>
+        <material name="${material_name}">
+          <color rgba="${material_color}"/>
+        </material>
+      </visual>
+      <xacro:if value="${enable_collision}">
+        <collision>
+          <origin xyz="${collision_xyz_offset}" rpy="${collision_rpy_offset}"/>
+          <geometry>
+            <box size="${cam_depth} ${cam_width} ${cam_height}"/>
+          </geometry>
+        </collision>
+      </xacro:if>
+      <inertial>
+        <mass value="${mass}" />
+        <origin xyz="${inertial_xyz_offset}" rpy="${inertial_rpy_offset}"/>
+        <inertia ixx="${ixx}" ixy="${ixy}" ixz="${ixz}"
+                 iyy="${iyy}" iyz="${iyz}" izz="${izz}" />
+      </inertial>
+    </link>
+
+    <joint name="${camera_name}_joint" type="fixed">
+      <origin xyz="${xyz_offset}" rpy="${rpy_offset}"/>
+      <child link="${camera_name}_link"/>
+      <parent link="${parent}"/>
+      <axis xyz="0 1 0" />
+    </joint>
+
+    <joint name="${camera_name}_optical_joint" type="fixed">
+      <parent link="${camera_name}_link"/>
+      <child link="${camera_name}_link_optical" />
+      <origin xyz="${xyz_offset}" rpy="${rpy_offset}"/>
+    </joint>
+
+    <gazebo reference="${camera_name}_link">
+      <sensor name="${camera_name}" type="camera">
+        <camera>
+          <horizontal_fov>1.3962634</horizontal_fov>
+          <image>
+            <width>640</width>
+            <height>480</height>
+            <format>R8G8B8</format>
+          </image>
+          <clip>
+            <near>0.1</near>
+            <far>15</far>
+          </clip>
+          <noise>
+            <type>gaussian</type>
+            <mean>0.0</mean>
+            <stddev>0.007</stddev>
+          </noise>
+          <optical_frame_id>camera_link_optical</optical_frame_id>
+          <camera_info_topic>camera/camera_info</camera_info_topic>
+        </camera>
+        <always_on>1</always_on>
+        <update_rate>20</update_rate>
+        <visualize>true</visualize>
+        <topic>camera/image</topic>
+      </sensor>
+    </gazebo>
+
+  </xacro:macro>
+  <!--########################################################################################-->
+
+</robot>

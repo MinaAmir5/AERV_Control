@@ -1,0 +1,741 @@
+<?xml version="1.0" ?>
+<sdf version="1.6">
+  <world name="road_world">
+
+    <gravity>0 0 -9.8000000000000007</gravity>
+    <physics type='ode'>
+      <max_step_size>0.01</max_step_size>
+      <real_time_factor>1</real_time_factor>
+      <max_contacts>10</max_contacts>
+      <real_time_update_rate>1000</real_time_update_rate>
+    </physics>
+    <plugin name='ignition::gazebo::systems::Physics' filename='libignition-gazebo-physics-system.so'/>
+    <plugin name='ignition::gazebo::systems::UserCommands' filename='libignition-gazebo-user-commands-system.so'/>
+    <plugin name='ignition::gazebo::systems::SceneBroadcaster' filename='libignition-gazebo-scene-broadcaster-system.so'/>
+    <plugin name='ignition::gazebo::systems::Imu' filename='ignition-gazebo-imu-system'/>
+    <plugin name='ignition::gazebo::systems::Sensors' filename='ignition-gazebo-sensors-system'>
+      <render_engine>ogre2</render_engine>
+    </plugin>
+
+    <scene>
+      <grid>false</grid>
+    </scene>
+
+    <light name="sun" type="directional">
+      <cast_shadows>true</cast_shadows>
+      <pose>0 0 10 0 0 0</pose>
+      <diffuse>1 1 1 1</diffuse>
+      <specular>0.1 0.1 0.1 1</specular>
+      <direction>-0.5 0.5 -1</direction>
+    </light>
+
+    <!-- Ground Plane -->
+    <model name="ground">
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>100 100</size>
+            </plane>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>100 100</size>
+            </plane>
+          </geometry>
+          <material>
+            <ambient>0.5 0.5 0.5 1</ambient>
+            <diffuse>0.5 0.5 0.5 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- Main Road -->
+    <model name="main_road">
+      <static>true</static>
+      <pose>0 0 0.01 0 0 0</pose>
+      <link name="link">
+        <visual name="main_road_vis">
+          <geometry>
+            <box>
+              <size>100 18 0.02</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.1 0.1 0.1 1</ambient>
+            <diffuse>0.1 0.1 0.1 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- Side Road (Crossroad) -->
+    <model name="side_road">
+      <static>true</static>
+      <pose>0 0 0.01 0 0 0</pose>
+      <link name="link">
+        <visual name="side_road_vis">
+          <geometry>
+            <box>
+              <size>18 100 0.02</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.1 0.1 0.1 1</ambient>
+            <diffuse>0.1 0.1 0.1 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- Pavements for main road (left and right), skipping center (intersection area) -->
+    <model name="pavement_main_left">
+      <static>true</static>
+      <pose>29.5 -8.5 0.02 0 0 0</pose>
+      <link name="link">
+        <visual name="pavement_vis">
+          <geometry>
+            <box>
+              <size>41 1 0.25</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.2 0.2 0.2 1</ambient>
+            <diffuse>0.2 0.2 0.2 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="pavement_main_left2">
+      <static>true</static>
+      <pose>-29.5 -8.5 0.02 0 0 0</pose>
+      <link name="link">
+        <visual name="pavement_vis">
+          <geometry>
+            <box>
+              <size>41 1 0.25</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.2 0.2 0.2 1</ambient>
+            <diffuse>0.2 0.2 0.2 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="pavement_main_right">
+      <static>true</static>
+      <pose>29.5 8.5 0.02 0 0 0</pose>
+      <link name="link">
+        <visual name="pavement_vis">
+          <geometry>
+            <box>
+              <size>41 1 0.25</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.2 0.2 0.2 1</ambient>
+            <diffuse>0.2 0.2 0.2 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="pavement_main_right2">
+      <static>true</static>
+      <pose>-29.5 8.5 0.02 0 0 0</pose>
+      <link name="link">
+        <visual name="pavement_vis">
+          <geometry>
+            <box>
+              <size>41 1 0.25</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.2 0.2 0.2 1</ambient>
+            <diffuse>0.2 0.2 0.2 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- Pavements for side road -->
+    <model name="pavement_side_left">
+      <static>true</static>
+      <pose>-8.5 29.5 0.02 0 0 0</pose>
+      <link name="link">
+        <visual name="pavement_vis">
+          <geometry>
+            <box>
+              <size>1 41 0.25</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.2 0.2 0.2 1</ambient>
+            <diffuse>0.2 0.2 0.2 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="pavement_side_left2">
+      <static>true</static>
+      <pose>-8.5 -29.5 0.02 0 0 0</pose>
+      <link name="link">
+        <visual name="pavement_vis">
+          <geometry>
+            <box>
+              <size>1 41 0.25</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.2 0.2 0.2 1</ambient>
+            <diffuse>0.2 0.2 0.2 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="pavement_side_right">
+      <static>true</static>
+      <pose>8.5 29.5 0.02 0 0 0</pose>
+      <link name="link">
+        <visual name="pavement_vis">
+          <geometry>
+            <box>
+              <size>1 41 0.25</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.2 0.2 0.2 1</ambient>
+            <diffuse>0.2 0.2 0.2 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="pavement_side_right2">
+      <static>true</static>
+      <pose>8.5 -29.5 0.02 0 0 0</pose>
+      <link name="link">
+        <visual name="pavement_vis">
+          <geometry>
+            <box>
+              <size>1 41 0.25</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.2 0.2 0.2 1</ambient>
+            <diffuse>0.2 0.2 0.2 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- Lane lines on main road -->
+    <model name="lane_main">
+      <static>true</static>
+      <pose>0 0 0.03 0 0 0</pose>
+      <link name="link">
+        <visual name="lane_line_main">
+          <geometry>
+            <box>
+              <size>100 0.05 0.01</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>1 1 1 1</ambient>
+            <diffuse>1 1 1 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="lane_main2">
+      <static>true</static>
+      <pose>30 -5.5 0.03 0 0 0</pose>
+      <link name="link">
+        <visual name="lane_line_main">
+          <geometry>
+            <box>
+              <size>40 0.05 0.01</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>1 1 1 1</ambient>
+            <diffuse>1 1 1 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="lane_main3">
+      <static>true</static>
+      <pose>-30 -5.5 0.03 0 0 0</pose>
+      <link name="link">
+        <visual name="lane_line_main">
+          <geometry>
+            <box>
+              <size>40 0.05 0.01</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>1 1 1 1</ambient>
+            <diffuse>1 1 1 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="lane_main4">
+      <static>true</static>
+      <pose>-30 5.5 0.03 0 0 0</pose>
+      <link name="link">
+        <visual name="lane_line_main">
+          <geometry>
+            <box>
+              <size>40 0.05 0.01</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>1 1 1 1</ambient>
+            <diffuse>1 1 1 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="lane_main5">
+      <static>true</static>
+      <pose>30 5.5 0.03 0 0 0</pose>
+      <link name="link">
+        <visual name="lane_line_main">
+          <geometry>
+            <box>
+              <size>40 0.05 0.01</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>1 1 1 1</ambient>
+            <diffuse>1 1 1 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- Lane lines on side road -->
+    <model name="lane_side">
+      <static>true</static>
+      <pose>0 0 0.03 0 0 0</pose>
+      <link name="link">
+        <visual name="lane_line_side">
+          <geometry>
+            <box>
+              <size>0.05 100 0.01</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>1 1 1 1</ambient>
+            <diffuse>1 1 1 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="lane_side2">
+      <static>true</static>
+      <pose>-5.5 -30 0.03 0 0 0</pose>
+      <link name="link">
+        <visual name="lane_line_side">
+          <geometry>
+            <box>
+              <size>0.05 40 0.01</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>1 1 1 1</ambient>
+            <diffuse>1 1 1 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="lane_side3">
+      <static>true</static>
+      <pose>-5.5 30 0.03 0 0 0</pose>
+      <link name="link">
+        <visual name="lane_line_side">
+          <geometry>
+            <box>
+              <size>0.05 40 0.01</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>1 1 1 1</ambient>
+            <diffuse>1 1 1 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="lane_side4">
+      <static>true</static>
+      <pose>5.5 -30 0.03 0 0 0</pose>
+      <link name="link">
+        <visual name="lane_line_side">
+          <geometry>
+            <box>
+              <size>0.05 40 0.01</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>1 1 1 1</ambient>
+            <diffuse>1 1 1 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="lane_side5">
+      <static>true</static>
+      <pose>5.5 30 0.03 0 0 0</pose>
+      <link name="link">
+        <visual name="lane_line_side">
+          <geometry>
+            <box>
+              <size>0.05 40 0.01</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>1 1 1 1</ambient>
+            <diffuse>1 1 1 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+  <include>
+    <uri>/home/mina/aerv_ws/src/aerv_control/worlds/lane.sdf</uri>
+    <name>lane1</name>  <!-- Override the name -->
+    <pose>0 2.75 0.03 0 0 1.5708</pose>  <!-- Override position and orientation -->
+  </include>
+
+  <include>
+    <uri>/home/mina/aerv_ws/src/aerv_control/worlds/lane.sdf</uri>
+    <name>lane2</name>  <!-- Override the name -->
+    <pose>10 2.75 0.03 0 0 1.5708</pose>  <!-- Override position and orientation -->
+  </include>
+
+  <include>
+    <uri>/home/mina/aerv_ws/src/aerv_control/worlds/lane.sdf</uri>
+    <name>lane3</name>  <!-- Override the name -->
+    <pose>20 2.75 0.03 0 0 1.5708</pose>  <!-- Override position and orientation -->
+  </include>
+
+  <include>
+    <uri>/home/mina/aerv_ws/src/aerv_control/worlds/lane.sdf</uri>
+    <name>lane4</name>  <!-- Override the name -->
+    <pose>30 2.75 0.03 0 0 1.5708</pose>  <!-- Override position and orientation -->
+  </include>
+
+  <include>
+    <uri>/home/mina/aerv_ws/src/aerv_control/worlds/lane.sdf</uri>
+    <name>lane5</name>  <!-- Override the name -->
+    <pose>-10 2.75 0.03 0 0 1.5708</pose>  <!-- Override position and orientation -->
+  </include>
+
+  <include>
+    <uri>/home/mina/aerv_ws/src/aerv_control/worlds/lane.sdf</uri>
+    <name>lane6</name>  <!-- Override the name -->
+    <pose>-20 2.75 0.03 0 0 1.5708</pose>  <!-- Override position and orientation -->
+  </include>
+
+  <include>
+    <uri>/home/mina/aerv_ws/src/aerv_control/worlds/lane.sdf</uri>
+    <name>lane7</name>  <!-- Override the name -->
+    <pose>-30 2.75 0.03 0 0 1.5708</pose>  <!-- Override position and orientation -->
+  </include>
+
+  <include>
+    <uri>/home/mina/aerv_ws/src/aerv_control/worlds/lane.sdf</uri>
+    <name>lane8</name>  <!-- Override the name -->
+    <pose>40 2.75 0.03 0 0 1.5708</pose>  <!-- Override position and orientation -->
+  </include>
+
+  <include>
+    <uri>/home/mina/aerv_ws/src/aerv_control/worlds/lane.sdf</uri>
+    <name>lane9</name>  <!-- Override the name -->
+    <pose>50 2.75 0.03 0 0 1.5708</pose>  <!-- Override position and orientation -->
+  </include>
+
+  <include>
+    <uri>/home/mina/aerv_ws/src/aerv_control/worlds/lane.sdf</uri>
+    <name>lane10</name>  <!-- Override the name -->
+    <pose>-40 2.75 0.03 0 0 1.5708</pose>  <!-- Override position and orientation -->
+  </include>
+
+  <include>
+    <uri>/home/mina/aerv_ws/src/aerv_control/worlds/lane.sdf</uri>
+    <name>lane11</name>  <!-- Override the name -->
+    <pose>-50 2.75 0.03 0 0 1.5708</pose>  <!-- Override position and orientation -->
+  </include>
+
+  <include>
+    <uri>/home/mina/aerv_ws/src/aerv_control/worlds/lane.sdf</uri>
+    <name>lane12</name>  <!-- Override the name -->
+    <pose>0 -2.75 0.03 0 0 1.5708</pose>  <!-- Override position and orientation -->
+  </include>
+
+  <include>
+    <uri>/home/mina/aerv_ws/src/aerv_control/worlds/lane.sdf</uri>
+    <name>lane13</name>  <!-- Override the name -->
+    <pose>10 -2.75 0.03 0 0 1.5708</pose>  <!-- Override position and orientation -->
+  </include>
+
+  <include>
+    <uri>/home/mina/aerv_ws/src/aerv_control/worlds/lane.sdf</uri>
+    <name>lane14</name>  <!-- Override the name -->
+    <pose>20 -2.75 0.03 0 0 1.5708</pose>  <!-- Override position and orientation -->
+  </include>
+
+  <include>
+    <uri>/home/mina/aerv_ws/src/aerv_control/worlds/lane.sdf</uri>
+    <name>lane15</name>  <!-- Override the name -->
+    <pose>30 -2.75 0.03 0 0 1.5708</pose>  <!-- Override position and orientation -->
+  </include>
+
+  <include>
+    <uri>/home/mina/aerv_ws/src/aerv_control/worlds/lane.sdf</uri>
+    <name>lane16</name>  <!-- Override the name -->
+    <pose>-10 -2.75 0.03 0 0 1.5708</pose>  <!-- Override position and orientation -->
+  </include>
+
+  <include>
+    <uri>/home/mina/aerv_ws/src/aerv_control/worlds/lane.sdf</uri>
+    <name>lane17</name>  <!-- Override the name -->
+    <pose>-20 -2.75 0.03 0 0 1.5708</pose>  <!-- Override position and orientation -->
+  </include>
+
+  <include>
+    <uri>/home/mina/aerv_ws/src/aerv_control/worlds/lane.sdf</uri>
+    <name>lane18</name>  <!-- Override the name -->
+    <pose>-30 -2.75 0.03 0 0 1.5708</pose>  <!-- Override position and orientation -->
+  </include>
+
+  <include>
+    <uri>/home/mina/aerv_ws/src/aerv_control/worlds/lane.sdf</uri>
+    <name>lane19</name>  <!-- Override the name -->
+    <pose>40 -2.75 0.03 0 0 1.5708</pose>  <!-- Override position and orientation -->
+  </include>
+
+  <include>
+    <uri>/home/mina/aerv_ws/src/aerv_control/worlds/lane.sdf</uri>
+    <name>lane20</name>  <!-- Override the name -->
+    <pose>50 -2.75 0.03 0 0 1.5708</pose>  <!-- Override position and orientation -->
+  </include>
+
+  <include>
+    <uri>/home/mina/aerv_ws/src/aerv_control/worlds/lane.sdf</uri>
+    <name>lane21</name>  <!-- Override the name -->
+    <pose>-40 -2.75 0.03 0 0 1.5708</pose>  <!-- Override position and orientation -->
+  </include>
+
+  <include>
+    <uri>/home/mina/aerv_ws/src/aerv_control/worlds/lane.sdf</uri>
+    <name>lane22</name>  <!-- Override the name -->
+    <pose>-50 -2.75 0.03 0 0 1.5708</pose>  <!-- Override position and orientation -->
+  </include>
+
+
+
+  <include>
+    <uri>/home/mina/aerv_ws/src/aerv_control/worlds/lane.sdf</uri>
+    <name>lane23</name>  <!-- Override the name -->
+    <pose>2.75 0 0.03 0 0 0</pose>  <!-- Override position and orientation -->
+  </include>
+
+  <include>
+    <uri>/home/mina/aerv_ws/src/aerv_control/worlds/lane.sdf</uri>
+    <name>lane24</name>  <!-- Override the name -->
+    <pose>2.75 10 0.03 0 0 0</pose>  <!-- Override position and orientation -->
+  </include>
+
+  <include>
+    <uri>/home/mina/aerv_ws/src/aerv_control/worlds/lane.sdf</uri>
+    <name>lane25</name>  <!-- Override the name -->
+    <pose>2.75 20 0.03 0 0 0</pose>  <!-- Override position and orientation -->
+  </include>
+
+  <include>
+    <uri>/home/mina/aerv_ws/src/aerv_control/worlds/lane.sdf</uri>
+    <name>lane26</name>  <!-- Override the name -->
+    <pose>2.75 30 0.03 0 0 0</pose>  <!-- Override position and orientation -->
+  </include>
+
+  <include>
+    <uri>/home/mina/aerv_ws/src/aerv_control/worlds/lane.sdf</uri>
+    <name>lane27</name>  <!-- Override the name -->
+    <pose>2.75 -10 0.03 0 0 0</pose>  <!-- Override position and orientation -->
+  </include>
+
+  <include>
+    <uri>/home/mina/aerv_ws/src/aerv_control/worlds/lane.sdf</uri>
+    <name>lane28</name>  <!-- Override the name -->
+    <pose>2.75 -20 0.03 0 0 0</pose>  <!-- Override position and orientation -->
+  </include>
+
+  <include>
+    <uri>/home/mina/aerv_ws/src/aerv_control/worlds/lane.sdf</uri>
+    <name>lane29</name>  <!-- Override the name -->
+    <pose>2.75 30 0.03 0 0 0</pose>  <!-- Override position and orientation -->
+  </include>
+
+  <include>
+    <uri>/home/mina/aerv_ws/src/aerv_control/worlds/lane.sdf</uri>
+    <name>lane30</name>  <!-- Override the name -->
+    <pose>2.75 40 0.03 0 0 0</pose>  <!-- Override position and orientation -->
+  </include>
+
+  <include>
+    <uri>/home/mina/aerv_ws/src/aerv_control/worlds/lane.sdf</uri>
+    <name>lane31</name>  <!-- Override the name -->
+    <pose>2.75 50 0.03 0 0 0</pose>  <!-- Override position and orientation -->
+  </include>
+
+  <include>
+    <uri>/home/mina/aerv_ws/src/aerv_control/worlds/lane.sdf</uri>
+    <name>lane32</name>  <!-- Override the name -->
+    <pose>2.75 -40 0.03 0 0 0</pose>  <!-- Override position and orientation -->
+  </include>
+
+  <include>
+    <uri>/home/mina/aerv_ws/src/aerv_control/worlds/lane.sdf</uri>
+    <name>lane33</name>  <!-- Override the name -->
+    <pose>2.75 -50 0.03 0 0 0</pose>  <!-- Override position and orientation -->
+  </include>
+
+  <include>
+    <uri>/home/mina/aerv_ws/src/aerv_control/worlds/lane.sdf</uri>
+    <name>lane34</name>  <!-- Override the name -->
+    <pose>-2.75 0 0.03 0 0 0</pose>  <!-- Override position and orientation -->
+  </include>
+
+  <include>
+    <uri>/home/mina/aerv_ws/src/aerv_control/worlds/lane.sdf</uri>
+    <name>lane35</name>  <!-- Override the name -->
+    <pose>-2.75 10 0.03 0 0 0</pose>  <!-- Override position and orientation -->
+  </include>
+
+  <include>
+    <uri>/home/mina/aerv_ws/src/aerv_control/worlds/lane.sdf</uri>
+    <name>lane36</name>  <!-- Override the name -->
+    <pose>-2.75 20 0.03 0 0 0</pose>  <!-- Override position and orientation -->
+  </include>
+
+  <include>
+    <uri>/home/mina/aerv_ws/src/aerv_control/worlds/lane.sdf</uri>
+    <name>lane37</name>  <!-- Override the name -->
+    <pose>-2.75 30 0.03 0 0 0</pose>  <!-- Override position and orientation -->
+  </include>
+
+  <include>
+    <uri>/home/mina/aerv_ws/src/aerv_control/worlds/lane.sdf</uri>
+    <name>lane38</name>  <!-- Override the name -->
+    <pose>-2.75 -10 0.03 0 0 0</pose>  <!-- Override position and orientation -->
+  </include>
+
+  <include>
+    <uri>/home/mina/aerv_ws/src/aerv_control/worlds/lane.sdf</uri>
+    <name>lane39</name>  <!-- Override the name -->
+    <pose>-2.75 -20 0.03 0 0 0</pose>  <!-- Override position and orientation -->
+  </include>
+
+  <include>
+    <uri>/home/mina/aerv_ws/src/aerv_control/worlds/lane.sdf</uri>
+    <name>lane40</name>  <!-- Override the name -->
+    <pose>-2.75 -30 0.03 0 0 0</pose>  <!-- Override position and orientation -->
+  </include>
+
+  <include>
+    <uri>/home/mina/aerv_ws/src/aerv_control/worlds/lane.sdf</uri>
+    <name>lane41</name>  <!-- Override the name -->
+    <pose>-2.75 40 0.03 0 0 0</pose>  <!-- Override position and orientation -->
+  </include>
+
+  <include>
+    <uri>/home/mina/aerv_ws/src/aerv_control/worlds/lane.sdf</uri>
+    <name>lane42</name>  <!-- Override the name -->
+    <pose>-2.75 50 0.03 0 0 0</pose>  <!-- Override position and orientation -->
+  </include>
+
+  <include>
+    <uri>/home/mina/aerv_ws/src/aerv_control/worlds/lane.sdf</uri>
+    <name>lane43</name>  <!-- Override the name -->
+    <pose>-2.75 -40 0.03 0 0 0</pose>  <!-- Override position and orientation -->
+  </include>
+
+  <include>
+    <uri>/home/mina/aerv_ws/src/aerv_control/worlds/lane.sdf</uri>
+    <name>lane44</name>  <!-- Override the name -->
+    <pose>-2.75 -50 0.03 0 0 0</pose>  <!-- Override position and orientation -->
+  </include>
+
+
+    <!-- Tree model built from scratch -->
+    <model name="tree1">
+      <static>true</static>
+      <pose>-20 -6 0 0 0 0</pose>
+      <link name="link">
+        <visual name="trunk">
+          <geometry>
+            <cylinder>
+              <radius>0.1</radius>
+              <length>1.0</length>
+            </cylinder>
+          </geometry>
+          <material>
+            <ambient>0.5 0.25 0.1 1</ambient>
+            <diffuse>0.5 0.25 0.1 1</diffuse>
+          </material>
+          <pose>0 0 0.5 0 0 0</pose>
+        </visual>
+
+        <visual name="leaves">
+          <geometry>
+            <sphere>
+              <radius>0.6</radius>
+            </sphere>
+          </geometry>
+          <material>
+            <ambient>0.1 0.6 0.1 1</ambient>
+            <diffuse>0.1 0.6 0.1 1</diffuse>
+          </material>
+          <pose>0 0 1.4 0 0 0</pose>
+        </visual>
+      </link>
+    </model>
+
+
+
+  <include>
+    <uri>/home/mina/aerv_ws/src/aerv_control/worlds/car.sdf</uri>
+    <name>car3</name>  <!-- Override the name -->
+    <pose>10 -1.5 1.5 0 0 1.5708</pose>  <!-- Override position and orientation -->
+  </include>
+
+  <include>
+    <uri>/home/mina/aerv_ws/src/aerv_control/worlds/car.sdf</uri>
+    <name>car4</name>  <!-- Override the name -->
+    <pose>30 -4 1.5 0 0 1.5708</pose>  <!-- Override position and orientation -->
+  </include>
+
+  </world>
+</sdf>

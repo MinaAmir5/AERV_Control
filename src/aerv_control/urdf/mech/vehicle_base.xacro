@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+<!-- ####################################### Macros ########################################-->
+<xacro:macro name="vehicle_base">
+
+  <link name="base_footprint"/>
+
+  <link name="base_link">
+    <xacro:default_inertial
+      mass="5.66677782494613"
+      ixx="0.0412496130237016" ixy="-3.62579069172665E-06" ixz="-1.89499491719E-05"
+      iyy="0.0509045572398094" iyz="-1.98836954043633E-06" izz="0.0892742534325145"
+      xyz="0 0 0" />
+    <xacro:mesh_visual_collision color="0.1 0.1 0.1 1" mesh="base_link.STL"/>
+  </link>
+
+  <joint name="base_joint" type="fixed">
+    <parent link="base_footprint"/>
+    <child link="base_link"/>
+    <origin xyz="0 0 0" rpy="0.0 0.0 0.0"/>
+  </joint>
+
+  <gazebo reference="base_link">
+    <visual>
+      <material>
+          <ambient>0 0 0 1</ambient>
+          <diffuse>0 0 0 1</diffuse>
+          <specular>0 0.7 0 1</specular>
+      </material>
+    </visual>
+    <mu1>0.000002</mu1>
+    <mu2>0.000002</mu2>
+  </gazebo>
+
+</xacro:macro>
+<!--########################################################################################-->
+
+</robot>

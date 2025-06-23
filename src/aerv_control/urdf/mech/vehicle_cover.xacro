@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+<!-- ####################################### Macros ########################################-->
+<xacro:macro name="vehicle_cover">
+
+<link name="cover_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="file://$(find aerv_control)/meshes/cover.STL" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="rplidar_black">
+        <color rgba="0.1 0.1 0.1 1"/>
+      </material>
+    </visual>
+
+    <inertial>
+      <mass value="5.0" />
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <inertia
+        ixx="0.0412496130237016"
+        ixy="0.0"
+        ixz="0.0"
+        iyy="0.0509045572398094"
+        iyz="0.0"
+        izz="0.0892742534325145"/>
+    </inertial>
+  </link>
+
+  <joint name="cover_joint" type="fixed">
+    <parent link="base_footprint"/>
+    <child link="cover_link"/>
+    <origin xyz="0.54 0.275 0.0" rpy="1.5707963268 0.0 -1.5707963268"/>
+  </joint>
+
+  <gazebo reference="cover_link">
+    <visual>
+      <material>
+          <ambient>0 0 0 1</ambient>
+          <diffuse>0 0 0 1</diffuse>
+          <specular>0 0.7 0 1</specular>
+      </material>
+    </visual>
+    <mu1>0.000002</mu1>
+    <mu2>0.000002</mu2>
+  </gazebo>
+
+</xacro:macro>
+<!--########################################################################################-->
+
+</robot>

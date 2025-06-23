@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro" xmlns:gz="http://gazebosim.org/schema">
+
+  <!--################################### Define properties ####################################-->
+  <xacro:property name="pin_mass" value="0.138675771770199" />
+  <xacro:property name="pin_ixx" value="1.87247800686041E-05" />
+  <xacro:property name="pin_iyy" value="0.000144832005554925" />
+  <xacro:property name="pin_izz" value="0.000158514566687349" />
+  <xacro:property name="pin_color" value="0.1 0.1 0.1 1" />
+  <xacro:property name="pin_origin_x" value="0.335" />
+  <xacro:property name="pin_origin_y" value="0.264" />
+  <xacro:property name="pin_origin_z" value="0.043" />
+  <xacro:property name="pin_axis" value="0 0 1" />
+  <!--##########################################################################################-->
+
+  <!--#######################################-Macros-##########################################-->
+  <xacro:macro name="steering_pin" params="side r_reflect">
+
+    <link name="pin_f${side}_link">
+      <xacro:default_inertial
+        mass="${pin_mass}"
+        ixx="${pin_ixx}" ixy="0" ixz="0"
+        iyy="${pin_iyy}" iyz="0" izz="${pin_izz}"
+        xyz="0 0 0"/>
+      <xacro:mesh_visual_collision color="${pin_color}" mesh="pin_f${side}_link.STL"/>  
+    </link>
+
+    <joint name="pin_f${side}_joint" type="revolute">
+      <origin xyz="${pin_origin_x} ${r_reflect*pin_origin_y} ${pin_origin_z}" rpy="0 0 ${r_reflect*(-PI/2)}"/>
+      <parent link="base_link"/>
+      <child link="pin_f${side}_link"/>
+      <axis xyz="${pin_axis}"/>
+      <limit lower="-0.5" upper="0.5" effort="100.0" velocity="1.0"/>
+      <dynamics damping="1" friction="0.6"/>
+    </joint>
+
+  </xacro:macro>
+  <!--##########################################################################################-->
+
+</robot>

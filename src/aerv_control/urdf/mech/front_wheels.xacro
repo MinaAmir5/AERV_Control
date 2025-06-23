@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro" xmlns:gz="http://gazebosim.org/schema">
+
+  <!--################################### Define properties ####################################-->
+  <xacro:property name="front_wheel_mass" value="1.14743385460119" />
+  <xacro:property name="front_wheel_ixx" value="0.00648947121488986" />
+  <xacro:property name="front_wheel_iyy" value="0.006459329584614" />
+  <xacro:property name="front_wheel_izz" value="0.012564699652666" />
+  <xacro:property name="front_wheel_color" value="0.1 0.1 0.1 1" />
+  <xacro:property name="front_wheel_origin" value="-0.0970628117567694 -0.00678974050742825 -0.0230001151407271" />
+  <xacro:property name="front_wheel_axis_x" value="-0.07" />
+  <xacro:property name="front_wheel_axis_z" value="-1.0" />
+  <!--##########################################################################################-->
+
+  <!--########################################-Macros-#########################################-->
+  <xacro:macro name="front_wheel" params="side r_reflect y_reflect">
+
+    <link name="wheel_f${side}_link">
+      <xacro:default_inertial
+        mass="${front_wheel_mass}"
+        ixx="${front_wheel_ixx}" ixy="0" ixz="0"
+        iyy="${front_wheel_iyy}" iyz="0" izz="${front_wheel_izz}"
+        xyz="0 0 0"/>
+      <xacro:mesh_visual_collision color="${front_wheel_color}" mesh="wheel_f${side}_link.STL"/>  
+    </link>
+
+    <joint name="wheel_f${side}_joint" type="continuous">
+      <origin xyz="${front_wheel_origin}" rpy="${r_reflect*(PI/2)} 0 ${y_reflect*(PI/2)}"/>
+      <parent link="pin_f${side}_link"/>
+      <child link="wheel_f${side}_link"/>
+      <axis xyz="${front_wheel_axis_x*r_reflect} 0 ${front_wheel_axis_z}"/>
+    </joint>
+
+    <gazebo reference='wheel_f${side}_link'>
+      <collision>
+        <surface>
+          <friction>
+            <ode>
+              <fdir1 gz:expressed_in="base_footprint">1 ${-1*r_reflect} 0</fdir1>
+              <mu>1.5</mu>
+              <mu2>0.0</mu2>
+            </ode>
+          </friction>
+        </surface>
+      </collision>
+      <visual>
+          <material>
+              <ambient>0 0 0 1.0</ambient>
+              <diffuse>0 0 0 1.0</diffuse>
+              <specular>0.2 0.2 0.2 1.0</specular>
+              <emissive>0.0 0.0 0.0 0.0</emissive>
+          </material>
+      </visual>
+    </gazebo>
+
+  </xacro:macro>
+  <!--##########################################################################################-->
+
+</robot>
